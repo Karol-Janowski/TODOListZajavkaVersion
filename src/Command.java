@@ -12,6 +12,22 @@ public class Command {
         this.toDoItem = toDoItem;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public ToDoItem getToDoItem() {
+        return toDoItem;
+    }
+
+    @Override
+    public String toString() {
+        return "Command{" +
+                "type=" + type +
+                ", toDoItem=" + toDoItem +
+                '}';
+    }
+
     public enum Type {
         CREATE("CREATE"),
         UPDATE("UPDATE"),
@@ -34,6 +50,15 @@ public class Command {
             return Stream.of(values())
                     .map(val -> val.getName())
                     .collect(Collectors.toList());
+        }
+
+        public static Type from(String input) {
+            for (Type type : Type.values()) {
+                if (type.name.equals(input)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException(input);
         }
     }
 

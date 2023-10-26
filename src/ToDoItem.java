@@ -1,7 +1,9 @@
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ToDoItem {
 
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private String name;
     private String description;
     private LocalDateTime deadline;
@@ -37,5 +39,22 @@ public class ToDoItem {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    @Override
+    public String toString() {
+        return "ToDoItem{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", deadline=" + deadline +
+                ", priority=" + priority +
+                '}';
+    }
+
+    public enum Field {
+        NAME,
+        DESCRIPTION,
+        DEADLINE,
+        PRIORITY
     }
 }

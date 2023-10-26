@@ -25,6 +25,7 @@ public class Main {
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
+        commands.forEach(System.out::println);
 
     }
 }
