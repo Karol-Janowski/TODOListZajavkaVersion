@@ -25,7 +25,8 @@ public class Main {
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
-        commands.forEach(System.out::println);
 
+        DatabaseRunner databaseRunner = new DatabaseRunner();
+        commands.forEach(databaseRunner::run);
     }
 }
