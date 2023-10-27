@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class DatabaseRunner {
 
@@ -15,6 +18,23 @@ public class DatabaseRunner {
     private static final String SQL_DELETE = "DEETE FROM TODOLIST WHERE = ?;";
     private static final String SQL_DELETE_ALL = "DELETE FROM TODOLIST;";
 
+    private final Map<Command.Type, Consumer<Command>> EXECUTION_MAP;
+
+    {
+        EXECUTION_MAP = Map.of(
+                Command.Type.CREATE, this::runAdd
+        );
+    }
+
+    void run(final Command command) {
+        System.out.println("##### RUNNING COMMAND #####");
+        Consumer<Command> commandConsumer = Optional.ofNullable(EXECUTION_MAP.get(command.getType()))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Command: [%s] not supported", command.getType())));
+
+        commandConsumer.accept(command);
+        System.out.println("##### FINISHED COMMAND ######");
+    }
 
     private void runAdd(final Command command) {
         if (!Command.Type.CREATE.equals(command.getType())) {
