@@ -127,7 +127,7 @@ public class DatabaseRunner {
 
     private void print(List<ToDoItem> readItems) {
         System.out.println("PRINTING TO DO LIST");
-        String schema = "%-25s%-25s%-25s%-25s%";
+        String schema = "%-25s%-25s%-25s%-25s%n";
         System.out.printf(schema,
                 ToDoItem.Field.NAME,
                 ToDoItem.Field.DESCRIPTION,
