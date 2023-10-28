@@ -23,6 +23,7 @@ public class DatabaseRunner {
     {
         EXECUTION_MAP = Map.of(
                 Command.Type.CREATE, this::runAdd,
+                Command.Type.UPDATE, this::runEdit,
                 Command.Type.DELETE_ALL, this::runDeleteAll
 
         );
@@ -74,6 +75,27 @@ public class DatabaseRunner {
 
         } catch (SQLException e) {
             System.err.printf("[%s] data error. Message: [%s]%n", command.getToDoItem(), e.getMessage());
+        }
+    }
+
+    private void runEdit(final Command command) {
+        if (!Command.Type.UPDATE.equals(command.getType())) {
+            throw new IllegalArgumentException(command.getType().getName());
+        }
+
+        try (
+                Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement statement = connection.prepareStatement(SQL_UPDATE);
+        ) {
+            statement.setString(1, command.getToDoItem().getDescription());
+            statement.setTimestamp(2, Timestamp.valueOf(command.getToDoItem().getDeadline()));
+            statement.setInt(3, command.getToDoItem().getPriority());
+            statement.setString(4, command.getToDoItem().getName());
+            int count = statement.executeUpdate();
+            System.out.printf("Run [%s] successfully, modified [%s] rows%n", command.getType(), count);
+
+        } catch (SQLException e) {
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
         }
     }
 }
