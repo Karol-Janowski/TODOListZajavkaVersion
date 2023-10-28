@@ -22,7 +22,9 @@ public class DatabaseRunner {
 
     {
         EXECUTION_MAP = Map.of(
-                Command.Type.CREATE, this::runAdd
+                Command.Type.CREATE, this::runAdd,
+                Command.Type.DELETE_ALL, this::runDeleteAll
+
         );
     }
 
@@ -50,10 +52,28 @@ public class DatabaseRunner {
             statement.setTimestamp(3, Timestamp.valueOf(command.getToDoItem().getDeadline()));
             statement.setInt(4, command.getToDoItem().getPriority());
             int count = statement.executeUpdate();
-            System.out.printf("Run [%s] successfully, inserted [%s] rows%n", command.getType(), count);
+            System.out.printf("Run [%s] successfully, modified [%s] rows%n", command.getType(), count);
 
         } catch (SQLException e) {
-            System.err.printf("INSERT data error. Message: [%s]%n", e.getMessage());
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
+        }
+    }
+
+    private void runDeleteAll(final Command command) {
+        if (!Command.Type.DELETE_ALL.equals(command.getType())) {
+            throw new IllegalArgumentException(command.getType().getName());
+        }
+
+        try (
+                Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement statement = connection.prepareStatement(SQL_DELETE_ALL);
+        ) {
+
+            int count = statement.executeUpdate();
+            System.out.printf("Run [%s] successfully, modified [%s] rows%n", command.getType(), count);
+
+        } catch (SQLException e) {
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getToDoItem(), e.getMessage());
         }
     }
 }
