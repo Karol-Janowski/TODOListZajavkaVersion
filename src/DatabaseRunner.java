@@ -18,7 +18,7 @@ public class DatabaseRunner {
 
     private static final String SQL_READ_WHERE = "SELECT * FROM TODOLIST WHERE NAME = ?;";
     private static final String SQL_READ_ALL = "SELECT * FROM TODOLIST;";
-    private static final String SQL_DELETE = "DEETE FROM TODOLIST WHERE = ?;";
+    private static final String SQL_DELETE = "DELETE FROM TODOLIST WHERE NAME = ?;";
     private static final String SQL_DELETE_ALL = "DELETE FROM TODOLIST;";
 
     private final Map<Command.Type, Consumer<Command>> EXECUTION_MAP;
@@ -28,7 +28,9 @@ public class DatabaseRunner {
                 Command.Type.CREATE, this::runAdd,
                 Command.Type.UPDATE, this::runEdit,
                 Command.Type.READ, this::runRead,
-                Command.Type.DELETE_ALL, this::runDeleteAll
+                Command.Type.READ_ALL, this::runReadAll,
+                Command.Type.DELETE_ALL, this::runDeleteAll,
+                Command.Type.DELETE, this::runDelete
 
         );
     }
@@ -40,7 +42,7 @@ public class DatabaseRunner {
                         String.format("Command: [%s] not supported", command.getType())));
 
         commandConsumer.accept(command);
-        System.out.println("##### FINISHED COMMAND ######");
+        System.out.println("##### FINISHED COMMAND ######\n");
     }
 
     private void runAdd(final Command command) {
@@ -74,6 +76,24 @@ public class DatabaseRunner {
                 PreparedStatement statement = connection.prepareStatement(SQL_DELETE_ALL);
         ) {
 
+            int count = statement.executeUpdate();
+            System.out.printf("Run [%s] successfully, modified [%s] rows%n", command.getType(), count);
+
+        } catch (SQLException e) {
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getToDoItem(), e.getMessage());
+        }
+    }
+
+    private void runDelete(final Command command) {
+        if (!Command.Type.DELETE.equals(command.getType())) {
+            throw new IllegalArgumentException(command.getType().getName());
+        }
+
+        try (
+                Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement statement = connection.prepareStatement(SQL_DELETE);
+        ) {
+            statement.setString(1, command.getToDoItem().getName());
             int count = statement.executeUpdate();
             System.out.printf("Run [%s] successfully, modified [%s] rows%n", command.getType(), count);
 
@@ -124,6 +144,29 @@ public class DatabaseRunner {
             System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
         }
     }
+
+    private void runReadAll(final Command command) {
+        if (!Command.Type.READ_ALL.equals(command.getType())) {
+            throw new IllegalArgumentException(command.getType().getName());
+        }
+
+        try (
+                Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement statement = connection.prepareStatement(SQL_READ_ALL);
+        ) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<ToDoItem> readItems = mapToToDoItem(resultSet);
+                print(readItems);
+                System.out.printf("Run [%s] successfully, read [%s] rows%n", command.getType(), readItems.size());
+
+            }
+
+        } catch (SQLException e) {
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
+        }
+    }
+
+
 
     private void print(List<ToDoItem> readItems) {
         System.out.println("PRINTING TO DO LIST");
