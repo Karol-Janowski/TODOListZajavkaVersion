@@ -1,4 +1,7 @@
+import javax.xml.transform.Result;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -24,6 +27,7 @@ public class DatabaseRunner {
         EXECUTION_MAP = Map.of(
                 Command.Type.CREATE, this::runAdd,
                 Command.Type.UPDATE, this::runEdit,
+                Command.Type.READ, this::runRead,
                 Command.Type.DELETE_ALL, this::runDeleteAll
 
         );
@@ -97,5 +101,56 @@ public class DatabaseRunner {
         } catch (SQLException e) {
             System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
         }
+    }
+
+    private void runRead(final Command command) {
+        if (!Command.Type.READ.equals(command.getType())) {
+            throw new IllegalArgumentException(command.getType().getName());
+        }
+
+        try (
+                Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                PreparedStatement statement = connection.prepareStatement(SQL_READ_WHERE);
+        ) {
+            statement.setString(1, command.getToDoItem().getName());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<ToDoItem> readItems = mapToToDoItem(resultSet);
+                print(readItems);
+                System.out.printf("Run [%s] successfully, read [%s] rows%n", command.getType(), readItems.size());
+
+            }
+
+        } catch (SQLException e) {
+            System.err.printf("[%s] data error. Message: [%s]%n", command.getType(), e.getMessage());
+        }
+    }
+
+    private void print(List<ToDoItem> readItems) {
+        System.out.println("PRINTING TO DO LIST");
+        String schema = "%-25s%-25s%-25s%-25s%";
+        System.out.printf(schema,
+                ToDoItem.Field.NAME,
+                ToDoItem.Field.DESCRIPTION,
+                ToDoItem.Field.DEADLINE,
+                ToDoItem.Field.PRIORITY);
+        readItems.forEach(entry -> System.out.printf(
+                schema,
+                entry.getName(),
+                entry.getDescription(),
+                entry.getDeadline(),
+                entry.getPriority()));
+    }
+
+    private List<ToDoItem> mapToToDoItem(ResultSet resultSet) throws SQLException {
+        List<ToDoItem> result = new ArrayList<>();
+        while (resultSet.next()) {
+            ToDoItem toDoItem = new ToDoItem();
+            toDoItem.setName(resultSet.getString(ToDoItem.Field.NAME.name()));
+            toDoItem.setDescription(resultSet.getString(ToDoItem.Field.DEADLINE.name()));
+            toDoItem.setDeadline(resultSet.getTimestamp(ToDoItem.Field.DEADLINE.name()).toLocalDateTime());
+            toDoItem.setPriority(resultSet.getInt(ToDoItem.Field.PRIORITY.name()));
+            result.add(toDoItem);
+        }
+        return result;
     }
 }
