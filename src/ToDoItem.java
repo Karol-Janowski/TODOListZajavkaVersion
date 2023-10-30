@@ -8,6 +8,19 @@ public class ToDoItem {
     private String description;
     private LocalDateTime deadline;
     private Integer priority;
+    private Status status;
+
+    public ToDoItem() {
+        this.status = Status.TODO;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
     public String getName() {
         return name;
@@ -56,6 +69,12 @@ public class ToDoItem {
         DESCRIPTION,
         DEADLINE,
         PRIORITY,
-        SORT
+        SORT,
+        STATUS
+    }
+
+    public enum Status {
+        TODO,
+        COMPLETED
     }
 }

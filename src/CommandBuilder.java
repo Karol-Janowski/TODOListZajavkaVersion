@@ -6,10 +6,10 @@ public class CommandBuilder {
 
     Optional<Command> buildCommand(final String line) {
         String[] split = line.split(";");
-        String commandType = split[0];
+        String commandTypeSplit = split[0];
 
-        if (!Command.Type.valuesAsList().contains(commandType)) {
-            System.err.printf("User provided unknown command: [%s]%n" + commandType);
+        if (!Command.Type.valuesAsList().contains(commandTypeSplit)) {
+            System.err.printf("User provided unknown command: [%s]%n" + commandTypeSplit);
             return Optional.empty();
         }
         List<String> stringCommandWithParamsExtracted = Arrays.asList(split).subList(1, split.length);
@@ -22,9 +22,10 @@ public class CommandBuilder {
                 .map(params -> List.of(params.split(",")))
                 .orElse(Collections.emptyList());
 
-        ToDoItem toDoItem = buildToDoItem(parametersMap);
+        Command.Type commandType = Command.Type.from(commandTypeSplit);
+        ToDoItem toDoItem = buildToDoItem(commandType, parametersMap);
         return Optional.of(new Command(
-                Command.Type.from(commandType),
+                commandType,
                 toDoItem,
                 findSortingField(sortingParams),
                 findSortingDir(sortingParams))
@@ -58,7 +59,7 @@ public class CommandBuilder {
         }
     }
 
-    private ToDoItem buildToDoItem(final Map<String, String> parametersMap) {
+    private ToDoItem buildToDoItem(final Command.Type commandType, final Map<String, String> parametersMap) {
         ToDoItem toDoItem = new ToDoItem();
         Optional.ofNullable(parametersMap.get(ToDoItem.Field.NAME.name()))
                 .ifPresent(toDoItem::setName);
@@ -68,6 +69,9 @@ public class CommandBuilder {
                 .ifPresent(deadline -> toDoItem.setDeadline(LocalDateTime.parse(deadline, ToDoItem.DATE_FORMAT)));
         Optional.ofNullable(parametersMap.get(ToDoItem.Field.PRIORITY.name()))
                 .ifPresent(priority -> toDoItem.setPriority(Integer.valueOf(priority)));
+        Optional.of(commandType)
+                .filter(Command.Type.COMPLETED::equals)
+                .ifPresent(completed -> toDoItem.setStatus(ToDoItem.Status.COMPLETED));
         return toDoItem;
     }
 

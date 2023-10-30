@@ -11,7 +11,9 @@ public class Main {
                 "CREATE;NAME=TASK3;DESCRIPTION=SOME DESCRIPTION3;DEADLINE=13.02.2021 20:10;PRIORITY=2",
                 "CREATE;NAME=TASK4;DESCRIPTION=SOME DESCRIPTION4;DEADLINE=11.02.2021 20:10;PRIORITY=3",
                 "CREATE;NAME=TASK5;DESCRIPTION=SOME DESCRIPTION5;DEADLINE=12.02.2021 20:10;PRIORITY=4",
-                "READ GROUPED;"
+                "READ ALL;",
+                "COMPLETED;NAME=TASK3;",
+                "READ ALL;"
         );
 
         CommandBuilder commandBuilder = new CommandBuilder();
