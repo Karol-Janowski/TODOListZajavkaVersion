@@ -13,7 +13,7 @@ public class Main {
                 "CREATE;NAME=TASK5;DESCRIPTION=SOME DESCRIPTION5;DEADLINE=15.02.2021 20:10;PRIORITY=4",
                 "UPDATE;NAME=TASK3;DESCRIPTION=SOME NEW DESCRIPTION;DEADLINE=14.02.2021 20:10;PRIORITY=10",
                 "READ;NAME=TASK1",
-                "READ ALL;",
+                "READ ALL;SORT=PRIORITY,DESC",
                 "DELETE;NAME=TASK4",
                 "DELETE ALL;"
         );
