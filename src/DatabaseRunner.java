@@ -7,7 +7,7 @@ public class DatabaseRunner {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/zajavka";
     private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "20231021kj";
+    private static final String PASSWORD = "";
     private static final String SQL_INSERT
             = "INSERT INTO TODOLIST (NAME, DESCRIPTION, DEADLINE, PRIORITY) VALUES (?, ?, ?, ?);";
     private static final String SQL_UPDATE
